@@ -1,0 +1,22 @@
+{
+  "name": "sounds",
+  "version": "1.0.0",
+  "description": "A collection of sounds from places I've been",
+  "main": "src/index.js",
+  "repository": "git@github.com:thesephist/sounds.git",
+  "author": "Linus Lee <linus@thesephist.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "NODE_ENV='production' webpack --config webpack.config.js",
+    "build:dev": "NODE_ENV='development' webpack --config webpack.config.js --watch",
+    "deploy": "surge -p dist --domain sounds.linus.zone"
+  },
+  "dependencies": {
+    "torus-dom": "^0.2.2"
+  },
+  "devDependencies": {
+    "copy-webpack-plugin": "^4.6.0",
+    "webpack": "^4.28.4",
+    "webpack-cli": "^3.2.1"
+  }
+}
