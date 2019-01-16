@@ -6,6 +6,8 @@ import {
     jdom,
 } from 'torus-dom';
 
+import * as L from 'leaflet';
+
 import SOUNDS_LIST from './sounds.js';
 
 class Sound extends Record { }
@@ -21,16 +23,41 @@ for (const [slug, props] of Object.entries(SOUNDS_LIST)) {
 }
 
 //> `Map` is a reserved word (not really, but it's a standard library class),
-//  so we use `GoogleMap`, which is also more descriptive.
-class GoogleMap extends StyledComponent {
+//  so we use `LeafletMap`, which is also more descriptive.
+class LeafletMap extends StyledComponent {
 
-    static token() {
-        //> Obviously not the real token
-        return 'google-maps-token';
+    init() {
+        this.mapContainer = document.createElement('div');
+        this.mapContainer.classList.add('map-container');
+        this.leafletMap = new L.map(this.mapContainer).setView([51.505, -0.09], 13);
+
+        // leaflet test code
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(this.leafletMap);
+        L.marker([51.5, -0.09]).addTo(this.leafletMap)
+            .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
+            .openPopup();
+
+        //> This is a bad, temporary measure to invalidate the size of the rendered map on the page
+        //  after Torus renders it. We'll have a better solution later.
+        setTimeout(() => {
+            this.leafletMap.invalidateSize();
+        }, 2000);
+    }
+
+    styles() {
+        return {
+            '.map-container': {
+                height: '500px',
+                width: '500px',
+            },
+        }
     }
 
     compose() {
-        return jdom`<div class="google-map-container">
+        return jdom`<div class="leaflet-map-container">
+            ${this.mapContainer}
         </div>`;
     }
 
@@ -66,7 +93,7 @@ class MapTab extends StyledComponent {
     init() {
         this.activeSound = null;
 
-        this.map = new GoogleMap();
+        this.map = new LeafletMap();
         this.placePanel = new PlacePanel();
     }
 

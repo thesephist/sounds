@@ -12,6 +12,7 @@
     "deploy": "surge -p dist --domain sounds.linus.zone"
   },
   "dependencies": {
+    "leaflet": "^1.4.0",
     "torus-dom": "^0.2.2"
   },
   "devDependencies": {
