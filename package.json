@@ -9,7 +9,8 @@
   "scripts": {
     "build": "NODE_ENV='production' webpack --config webpack.config.js",
     "build:dev": "NODE_ENV='development' webpack --config webpack.config.js --watch",
-    "deploy": "surge -p dist --domain sounds.linus.zone"
+    "deploy": "surge -p dist --domain sounds.linus.zone",
+    "docs": "litterate --config litterate.config.js"
   },
   "dependencies": {
     "leaflet": "^1.4.0",
@@ -17,6 +18,7 @@
   },
   "devDependencies": {
     "copy-webpack-plugin": "^4.6.0",
+    "litterate": "^0.1.0",
     "webpack": "^4.28.4",
     "webpack-cli": "^3.2.1"
   }

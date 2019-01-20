@@ -1,6 +1,9 @@
 # Sounds
 dist/
 
+# Litterate docs
+docs/
+
 # Logs
 logs
 *.log
