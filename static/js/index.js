@@ -39,9 +39,8 @@ class LeafletMap extends StyledComponent {
         }).addTo(this.leafletMap);
 
         for (const sound of soundStore) {
-            console.log(sound);
             L.marker([sound.get('lat'), sound.get('lng')]).addTo(this.leafletMap)
-                .bindPopup(new SoundPopup(sound).node);
+                .on('click', () => router.go(`/sounds/${sound.id}`));
         }
 
         //> This is a bad, temporary measure to invalidate the size of the rendered map on the page
@@ -72,34 +71,25 @@ class LeafletMap extends StyledComponent {
 
 }
 
-const SoundYoutubeVideo = sound => {
-    return jdom`<iframe src="https://www.youtube.com/embed/${sound.get('youtubeID')}" frameborder="0"></iframe>`;
-}
+class PlacePanel extends Styled(Component.from(sound => {
+    const props = sound.summarize();
+    return jdom`<div class="placePanel">
+        <h2>${props.name}</h2>
+        <p class="datetime">${props.date.toLocaleString()}</p>
+        <p>${props.description}</p>
+        <div class="videoPlayer">
+            <iframe src="https://www.youtube.com/embed/${props.youtubeID}" frameborder="0"></iframe>
+        </div>
+    </div>`;
+})) {
 
-class PlacePanel extends StyledComponent {
-
-    compose(props) {
-        if (this.record === null) {
-            return null;
-        }
-
-        return jdom`<div class="placePanel">
-            <h2>${props.name}</h2>
-            <p class="datetime">${props.date.toLocaleString()}</p>
-            <p>${props.description}</p>
-            <div class="videoPlayer">${SoundYoutubeVideo(this.record)}</div>
-        </div>`;
+    styles() {
+        return css`
+        position: fixed;
+        `;
     }
 
 }
-
-const SoundPopup = Styled(Component.from(sound => {
-    return jdom`<div class="popupContainer">
-        <p><strong>${sound.get('name')}</strong></p>
-        <p>${sound.get('description')}</p>
-        ${SoundYoutubeVideo(sound)}
-    </div>`;
-}));
 
 //> In the future, we may add a "list" tab where all the places
 //  are enumerated in a collection view instead of on a map. So
@@ -111,16 +101,16 @@ class MapTab extends StyledComponent {
         this.activeSound = null;
 
         this.map = new LeafletMap();
-        this.placePanel = new PlacePanel();
+        this.placePanel = null;
     }
 
     setActiveSound(slug) {
         if (slug !== null) {
-            this.activeSound = soundStore.get(slug);
-            this.placePanel.bind(this.activeSound);
+            this.activeSound = soundStore.find(slug);
+            this.placePanel = new PlacePanel(this.activeSound).node;
         } else {
-            ths.activeSound = null;
-            this.placePanel.unbind();
+            this.activeSound = null;
+            this.placePanel = null;
         }
         this.render();
     }
@@ -141,7 +131,7 @@ class MapTab extends StyledComponent {
             <div class="map-container">
                 ${this.map.node}
             </div>
-            ${this.placePanel.node}
+            ${this.placePanel}
         </div>`;
     }
 
@@ -155,7 +145,7 @@ class App extends StyledComponent {
         this.bind(router, ([name, params]) => {
             switch (name) {
                 case 'sound':
-                    // render specific sound
+                    this.setActiveSound(params.slug);
                     break;
                 default:
                     // render home
