@@ -41,9 +41,11 @@ class LeafletMap extends StyledComponent {
 
         //> This is a bad, temporary measure to invalidate the size of the rendered map on the page
         //  after Torus renders it. We'll have a better solution later.
-        setTimeout(() => {
-            this.leafletMap.invalidateSize();
-        }, 2000);
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                this.leafletMap.invalidateSize();
+            });
+        });
     }
 
     styles() {
