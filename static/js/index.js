@@ -8,7 +8,7 @@ import {
 
 import * as L from 'leaflet';
 
-import SOUNDS_LIST from './sounds.js';
+import {SOUNDS_LIST} from './sounds.js';
 
 class Sound extends Record { }
 
@@ -35,9 +35,15 @@ class LeafletMap extends StyledComponent {
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(this.leafletMap);
-        L.marker([51.5, -0.09]).addTo(this.leafletMap)
-            .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
-            .openPopup();
+
+        for (const sound of soundStore) {
+            console.log(sound);
+            L.marker([sound.get('lat'), sound.get('lng')]).addTo(this.leafletMap)
+                .bindPopup(`
+                    <p><strong>${sound.get('name')}</strong></p>
+                    <p>${sound.get('description')}</p>
+                `);
+        }
 
         //> This is a bad, temporary measure to invalidate the size of the rendered map on the page
         //  after Torus renders it. We'll have a better solution later.
@@ -49,12 +55,12 @@ class LeafletMap extends StyledComponent {
     }
 
     styles() {
-        return {
-            '.map-container': {
-                height: '500px',
-                width: '500px',
-            },
+        return css`
+        .map-container {
+            height: 100vh;
+            width: 100vw;
         }
+        `;
     }
 
     compose() {
