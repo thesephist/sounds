@@ -1,4 +1,6 @@
 import {
+    Component,
+    Styled,
     StyledComponent,
     Record,
     StoreOf,
@@ -39,10 +41,7 @@ class LeafletMap extends StyledComponent {
         for (const sound of soundStore) {
             console.log(sound);
             L.marker([sound.get('lat'), sound.get('lng')]).addTo(this.leafletMap)
-                .bindPopup(`
-                    <p><strong>${sound.get('name')}</strong></p>
-                    <p>${sound.get('description')}</p>
-                `);
+                .bindPopup(new SoundPopup(sound).node);
         }
 
         //> This is a bad, temporary measure to invalidate the size of the rendered map on the page
@@ -56,9 +55,11 @@ class LeafletMap extends StyledComponent {
 
     styles() {
         return css`
+        height: 100%;
+        width: 100%;
         .map-container {
-            height: 100vh;
-            width: 100vw;
+            height: 100%;
+            width: 100%;
         }
         `;
     }
@@ -72,7 +73,7 @@ class LeafletMap extends StyledComponent {
 }
 
 const SoundYoutubeVideo = sound => {
-    return jdom`<iframe src="https://www.youtube.com/embed/${sound.get('youtubeID')}"></iframe>`;
+    return jdom`<iframe src="https://www.youtube.com/embed/${sound.get('youtubeID')}" frameborder="0"></iframe>`;
 }
 
 class PlacePanel extends StyledComponent {
@@ -91,6 +92,14 @@ class PlacePanel extends StyledComponent {
     }
 
 }
+
+const SoundPopup = Styled(Component.from(sound => {
+    return jdom`<div class="popupContainer">
+        <p><strong>${sound.get('name')}</strong></p>
+        <p>${sound.get('description')}</p>
+        ${SoundYoutubeVideo(sound)}
+    </div>`;
+}));
 
 //> In the future, we may add a "list" tab where all the places
 //  are enumerated in a collection view instead of on a map. So
@@ -114,6 +123,17 @@ class MapTab extends StyledComponent {
             this.placePanel.unbind();
         }
         this.render();
+    }
+
+    styles() {
+        return css`
+        height: 100%;
+        width: 100%;
+        .map-container {
+            height: 100%;
+            width: 100%;
+        }
+        `;
     }
 
     compose() {
@@ -148,10 +168,45 @@ class App extends StyledComponent {
         this.mapTab.setActiveSound(slug);
     }
 
+    styles() {
+        return css`
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100vh;
+        width: 100vw;
+
+        font-family: system-ui, sans-serif;
+
+        header {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            height: 50px;
+        }
+        .tabContainer {
+            flex-shrink: 1;
+            flex-grow: 1;
+            height: 0;
+        }
+        `;
+    }
+
     compose() {
         return jdom`<main>
-            Sounds!
-            ${this.mapTab.node}
+            <header>
+                <div class="logo">
+                    <a href="/">Sounds</a>
+                </div>
+                <nav>
+                    About SFP
+                </nav>
+            </header>
+            <div class="tabContainer">
+                ${this.mapTab.node}
+            </div>
         </main>`;
     }
 
