@@ -13,13 +13,13 @@
     "docs": "litterate --config litterate.config.js"
   },
   "dependencies": {
-    "leaflet": "^1.4.0",
-    "torus-dom": "^0.2.2"
+    "leaflet": "^1.5.1",
+    "torus-dom": "^0.4.3"
   },
   "devDependencies": {
-    "copy-webpack-plugin": "^4.6.0",
-    "litterate": "^0.1.0",
-    "webpack": "^4.28.4",
-    "webpack-cli": "^3.2.1"
+    "copy-webpack-plugin": "^5.0.3",
+    "litterate": "^0.1.1",
+    "webpack": "^4.31.0",
+    "webpack-cli": "^3.3.2"
   }
 }
