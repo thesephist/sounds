@@ -84,16 +84,34 @@ class LeafletMap extends StyledComponent {
 
 class PlacePanel extends StyledComponent {
 
+    init() {
+        this.active = false;
+
+        this.iframe = document.createElement('iframe');
+        this.iframe.setAttribute('frameborder', '0');
+
+        this.toggleActive = this.toggleActive.bind(this);
+    }
+
     bindSound(sound) {
         if (sound === null) {
             this.unbind();
         } else {
             this.bind(sound, () => this.render());
+            this.iframe.src = `https://www.youtube.com/embed/${sound.get('youtubeID')}`
         }
         this.render();
     }
 
     styles() {
+        let position;
+        if (this.record === null) {
+            position = '0';
+        } else if (this.active) {
+            position = 'calc(-100% - 8px)';
+        }  else {
+            position = '-20vh';
+        }
         return css`
         position: fixed;
         top: 100%;
@@ -103,9 +121,27 @@ class PlacePanel extends StyledComponent {
         box-shadow: 0 2px 5px rgba(0, 0, 0, .4);
         z-index: 100;
         padding: 12px 20px;
-        transform: ${this.record === null ? 'translate(-50%, 0)' : 'translate(-50%, -240px)'};
+        transform: translate(-50%, ${position});
         transition: transform .3s;
+        cursor: pointer;
+        box-sizing: border-box;
+        width: 96%;
+
+        @media only screen and (min-width: 700px) {
+            /* the !importants are dirty -- they'll be unnecessary in torus v0.4.4+ */
+            transform: none !important;
+            left: 8px !important;
+            bottom: 8px !important;
+            top: unset !important;
+            width: 340px !important;
+            display: ${this.record === null ? 'none' : 'block'}
+        }
         `;
+    }
+
+    toggleActive() {
+        this.active = !this.active;
+        this.render();
     }
 
     compose(props) {
@@ -117,12 +153,12 @@ class PlacePanel extends StyledComponent {
                 <p class="datetime">${props.date.toLocaleString()}</p>
                 <p>${props.description}</p>
                 <div class="videoPlayer">
-                    <iframe src="https://www.youtube.com/embed/${props.youtubeID}" frameborder="0"></iframe>
+                    ${this.iframe}
                 </div>
             </div>`;
         }
 
-        return jdom`<div class="placePanel">
+        return jdom`<div class="placePanel" onclick="${this.toggleActive}">
             ${content}
         </div>`;
     }
