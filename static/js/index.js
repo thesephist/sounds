@@ -35,7 +35,7 @@ class LeafletMap extends StyledComponent {
             //> We hide default zoom controls, which are in the top left
             //  which overlaps with our panel.
             zoomControl: false,
-        }).setView([51.505, -0.09], 13);
+        });
 
         //> Create and add controls to the top right corner
         L.control.zoom({
@@ -58,8 +58,26 @@ class LeafletMap extends StyledComponent {
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
                 this.leafletMap.invalidateSize();
+                this.centerAll();
             });
         });
+    }
+
+    centerAll() {
+        const sounds = Array.from(soundStore.records);
+        const lats = sounds.map(s => s.get('lat'));
+        const lngs = sounds.map(s => s.get('lng'));
+
+        const maxLat = Math.max(...lats);
+        const minLat = Math.min(...lats);
+        const maxLng = Math.max(...lngs);
+        const minLng = Math.min(...lngs);
+
+        const bounds = L.latLngBounds([
+            [minLat, minLng],
+            [maxLat, maxLng],
+        ]);
+        this.leafletMap.fitBounds(bounds);
     }
 
     centerSound(sound) {
@@ -90,13 +108,15 @@ class LeafletMap extends StyledComponent {
 
 }
 
+const AudioWithControls = audioSrc => {
+    // TODO: improve this with custom controls?
+    return jdom`<audio src="${audioSrc}" controls></audio>`;
+}
+
 class PlacePanel extends StyledComponent {
 
     init() {
         this.active = false;
-
-        this.iframe = document.createElement('iframe');
-        this.iframe.setAttribute('frameborder', '0');
 
         this.toggleActive = this.toggleActive.bind(this);
     }
@@ -106,7 +126,6 @@ class PlacePanel extends StyledComponent {
             this.unbind();
         } else {
             this.bind(sound, () => this.render());
-            this.iframe.src = `https://www.youtube.com/embed/${sound.get('youtubeID')}`
         }
         this.render();
     }
@@ -177,9 +196,7 @@ class PlacePanel extends StyledComponent {
                 <button onclick="${() => router.go('/')}">Close</button>
                 <p class="datetime">${props.date.toLocaleString()}</p>
                 <p>${props.description}</p>
-                <div class="videoPlayer">
-                    ${this.iframe}
-                </div>
+                ${AudioWithControls(`/static/mp3/${props.id}.mp3`)}
             </div>`;
         }
 
@@ -209,6 +226,7 @@ class MapTab extends StyledComponent {
             this.map.centerSound(this.activeSound);
         } else {
             this.activeSound = null;
+            this.map.centerAll();
         }
         this.placePanel.bindSound(this.activeSound);
         this.render();
