@@ -8,6 +8,7 @@ module.exports = {
         new CopyWebpackPlugin([
             'static/index.html',
             'static/main.css',
+            'static/mp3/*.mp3',
         ]),
     ],
     output: {
