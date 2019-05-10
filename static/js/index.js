@@ -39,8 +39,10 @@ class LeafletMap extends StyledComponent {
         }).addTo(this.leafletMap);
 
         for (const sound of soundStore) {
-            L.marker([sound.get('lat'), sound.get('lng')]).addTo(this.leafletMap)
-                .on('click', () => router.go(`/sounds/${sound.id}`));
+            const marker = L.marker([sound.get('lat'), sound.get('lng')]).addTo(this.leafletMap);
+            marker.on('click', () => {
+                router.go(`/sounds/${sound.id}`);
+            });
         }
 
         //> This is a bad, temporary measure to invalidate the size of the rendered map on the page
@@ -52,6 +54,13 @@ class LeafletMap extends StyledComponent {
         });
     }
 
+    centerSound(sound) {
+        this.leafletMap.fitBounds(L.latLngBounds([{
+            lat: sound.get('lat'),
+            lng: sound.get('lng'),
+        }]));
+    }
+
     styles() {
         return css`
         height: 100%;
@@ -59,6 +68,8 @@ class LeafletMap extends StyledComponent {
         .map-container {
             height: 100%;
             width: 100%;
+            position: relative;
+            z-index: 1;
         }
         `;
     }
@@ -71,22 +82,49 @@ class LeafletMap extends StyledComponent {
 
 }
 
-class PlacePanel extends Styled(Component.from(sound => {
-    const props = sound.summarize();
-    return jdom`<div class="placePanel">
-        <h2>${props.name}</h2>
-        <p class="datetime">${props.date.toLocaleString()}</p>
-        <p>${props.description}</p>
-        <div class="videoPlayer">
-            <iframe src="https://www.youtube.com/embed/${props.youtubeID}" frameborder="0"></iframe>
-        </div>
-    </div>`;
-})) {
+class PlacePanel extends StyledComponent {
+
+    bindSound(sound) {
+        if (sound === null) {
+            this.unbind();
+        } else {
+            this.bind(sound, () => this.render());
+        }
+        this.render();
+    }
 
     styles() {
         return css`
         position: fixed;
+        top: 100%;
+        left: 50%;
+        background: #fff;
+        border-radius: 6px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, .4);
+        z-index: 100;
+        padding: 12px 20px;
+        transform: ${this.record === null ? 'translate(-50%, 0)' : 'translate(-50%, -240px)'};
+        transition: transform .3s;
         `;
+    }
+
+    compose(props) {
+        let content = null;
+        if (this.record !== null) {
+            content = jdom`<div>
+                <h2>${props.name}</h2>
+                <button onclick="${() => router.go('/')}">Close</button>
+                <p class="datetime">${props.date.toLocaleString()}</p>
+                <p>${props.description}</p>
+                <div class="videoPlayer">
+                    <iframe src="https://www.youtube.com/embed/${props.youtubeID}" frameborder="0"></iframe>
+                </div>
+            </div>`;
+        }
+
+        return jdom`<div class="placePanel">
+            ${content}
+        </div>`;
     }
 
 }
@@ -101,17 +139,17 @@ class MapTab extends StyledComponent {
         this.activeSound = null;
 
         this.map = new LeafletMap();
-        this.placePanel = null;
+        this.placePanel = new PlacePanel();
     }
 
     setActiveSound(slug) {
         if (slug !== null) {
             this.activeSound = soundStore.find(slug);
-            this.placePanel = new PlacePanel(this.activeSound).node;
+            this.map.centerSound(this.activeSound);
         } else {
             this.activeSound = null;
-            this.placePanel = null;
         }
+        this.placePanel.bindSound(this.activeSound);
         this.render();
     }
 
@@ -131,7 +169,7 @@ class MapTab extends StyledComponent {
             <div class="map-container">
                 ${this.map.node}
             </div>
-            ${this.placePanel}
+            ${this.placePanel.node}
         </div>`;
     }
 
@@ -148,7 +186,7 @@ class App extends StyledComponent {
                     this.setActiveSound(params.slug);
                     break;
                 default:
-                    // render home
+                    this.setActiveSound(null);
                     break;
             }
         });
