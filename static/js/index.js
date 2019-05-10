@@ -30,10 +30,18 @@ class LeafletMap extends StyledComponent {
 
     init() {
         this.mapContainer = document.createElement('div');
-        this.mapContainer.classList.add('map-container');
-        this.leafletMap = new L.map(this.mapContainer).setView([51.505, -0.09], 13);
+        this.mapContainer.classList.add('map-div');
+        this.leafletMap = new L.map(this.mapContainer, {
+            //> We hide default zoom controls, which are in the top left
+            //  which overlaps with our panel.
+            zoomControl: false,
+        }).setView([51.505, -0.09], 13);
 
-        // leaflet test code
+        //> Create and add controls to the top right corner
+        L.control.zoom({
+            position: 'topright',
+        }).addTo(this.leafletMap);
+
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(this.leafletMap);
@@ -65,7 +73,7 @@ class LeafletMap extends StyledComponent {
         return css`
         height: 100%;
         width: 100%;
-        .map-container {
+        .map-div {
             height: 100%;
             width: 100%;
             position: relative;
@@ -112,8 +120,9 @@ class PlacePanel extends StyledComponent {
         }  else {
             position = '-20vh';
         }
+
         return css`
-        position: fixed;
+        position: absolute;
         top: 100%;
         left: 50%;
         background: #fff;
@@ -130,11 +139,27 @@ class PlacePanel extends StyledComponent {
         @media only screen and (min-width: 700px) {
             /* the !importants are dirty -- they'll be unnecessary in torus v0.4.4+ */
             transform: none !important;
+            top: 8px !important;
             left: 8px !important;
-            bottom: 8px !important;
-            top: unset !important;
             width: 340px !important;
             display: ${this.record === null ? 'none' : 'block'}
+        }
+
+        button {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 4px 6px;
+            font-size: 1em;
+            border: 0;
+            box-shadow: 0;
+            border-radius: 0;
+            color: #000;
+            cursor: pointer;
+
+            &:hover {
+                background: #ddd;
+            }
         }
         `;
     }
@@ -193,6 +218,7 @@ class MapTab extends StyledComponent {
         return css`
         height: 100%;
         width: 100%;
+        position: relative;
         .map-container {
             height: 100%;
             width: 100%;
@@ -211,25 +237,72 @@ class MapTab extends StyledComponent {
 
 }
 
+class AboutTab extends StyledComponent {
+
+    styles() {
+        return css`
+        margin: 20px auto;
+        max-width: 800px;
+        width: 60%;
+        line-height: 1.5em;
+
+        .signout {
+            text-align: right;
+        }
+
+        @media only screen and (max-width: 700px) {
+            width: 92% !important;
+        }
+        `;
+    }
+
+    compose() {
+        return jdom`<div class="aboutTab">
+            <p>
+                Since 2017 I've been fortunate enough to travel to a bunch of new and
+                interesting places across the United States and the world.
+            </p>
+            <p>
+                Though I love to take pictures and videos to remember where I've been,
+                I discovered that one of my favorite ways to remember where I've been is
+                to listen to the <strong>sounds of places</strong>.
+            </p>
+            <p class="signout">- Linus</p>
+        </div>`;
+    }
+
+}
+
 class App extends StyledComponent {
 
     init(router) {
-        this.mapTab = new MapTab();
+        this.activeTab = 'map';
+
+        this.tabs = {
+            map: new MapTab(),
+            about: new AboutTab(),
+        }
 
         this.bind(router, ([name, params]) => {
             switch (name) {
                 case 'sound':
                     this.setActiveSound(params.slug);
+                    this.activeTab = 'map';
+                    break;
+                case 'about':
+                    this.activeTab = 'about';
                     break;
                 default:
                     this.setActiveSound(null);
+                    this.activeTab = 'map';
                     break;
             }
+            this.render();
         });
     }
 
     setActiveSound(slug) {
-        this.mapTab.setActiveSound(slug);
+        this.tabs.map.setActiveSound(slug);
     }
 
     styles() {
@@ -239,9 +312,7 @@ class App extends StyledComponent {
         justify-content: space-between;
         height: 100vh;
         width: 100vw;
-
         font-family: system-ui, sans-serif;
-
         header {
             display: flex;
             flex-direction: row;
@@ -249,11 +320,35 @@ class App extends StyledComponent {
             align-items: center;
             flex-shrink: 0;
             height: 50px;
+            box-sizing: border-box;
+            padding-left: 16px;
+            padding-right: 16px;
+            border-bottom: 2px solid #333;
+        }
+        header a {
+            color: #000;
+            text-decoration: none;
+            white-space: nowrap;
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+        .logo a {
+            font-size: 32px;
+            font-weight: bold;
         }
         .tabContainer {
             flex-shrink: 1;
             flex-grow: 1;
             height: 0;
+        }
+        nav {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            a {
+            margin-left: 12px;
+            }
         }
         `;
     }
@@ -262,14 +357,24 @@ class App extends StyledComponent {
         return jdom`<main>
             <header>
                 <div class="logo">
-                    <a href="/">Sounds</a>
+                    <a href="/" onclick="${evt => {
+                        evt.preventDefault();
+                        router.go('/');
+                    }}">Sounds</a>
                 </div>
                 <nav>
-                    About SFP
+                    <a href="https://linus.zone/now">
+                        <span class="desktop">Made by </span>
+                        <span class="mobile">@</span>thesephist
+                    </a>
+                    <a href="/about" onclick="${evt => {
+                        evt.preventDefault();
+                        router.go('/about');
+                    }}">About</a>
                 </nav>
             </header>
             <div class="tabContainer">
-                ${this.mapTab.node}
+                ${this.tabs[this.activeTab].node}
             </div>
         </main>`;
     }
@@ -278,6 +383,7 @@ class App extends StyledComponent {
 
 const router = new Router({
     sound: '/sounds/:slug',
+    about: '/about',
     default: '/',
 });
 const app = new App(router);
