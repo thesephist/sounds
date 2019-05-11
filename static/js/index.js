@@ -169,11 +169,10 @@ class PlacePanel extends StyledComponent {
         width: 96%;
 
         @media only screen and (min-width: 700px) {
-            /* the !importants are dirty -- they'll be unnecessary in torus v0.4.4+ */
-            transform: none !important;
-            top: 8px !important;
-            left: 8px !important;
-            width: 340px !important;
+            transform: none;
+            top: 8px;
+            left: 8px;
+            width: 340px;
             display: ${this.record === null ? 'none' : 'block'}
         }
 
@@ -299,7 +298,7 @@ class SoundListTab extends StyledComponent {
         width: 60%;
 
         @media only screen and (max-width: 700px) {
-            width: 92% !important;
+            width: 92%;
         }
 
         ul {
@@ -360,7 +359,7 @@ class AboutTab extends StyledComponent {
         }
 
         @media only screen and (max-width: 700px) {
-            width: 92% !important;
+            width: 92%;
         }
         `;
     }
