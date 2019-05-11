@@ -13,12 +13,10 @@ import * as L from 'leaflet';
 import {SOUNDS_LIST} from './sounds.js';
 
 class Sound extends Record { }
-
 class SoundStore extends StoreOf(Sound) { }
 
 //> Not sure if it's a great idea to have this as a global yet, but it might be ok
-//  since this whole app is quite small. Passing this prop thru the component tree
-//  might be more of a hassle.
+//  since this whole app is quite small.
 const soundStore = new SoundStore();
 for (const [slug, props] of Object.entries(SOUNDS_LIST)) {
     soundStore.create(slug, props);
@@ -121,8 +119,9 @@ class LeafletMap extends StyledComponent {
 
 const AudioWithControls = audioSrc => {
     return jdom`<div class="audioGroup">
-        <audio src="${audioSrc}" controls loop></audio>
-        <div>You can also listen <a href="${audioSrc}">here</a>.</div>
+        <audio src="${audioSrc}" controls loop>
+            <div class="audioLink">Listen to the sound <a href="${audioSrc}">here</a>.</div>
+        </audio>
     </div>`;
 }
 
@@ -175,7 +174,6 @@ class PlacePanel extends StyledComponent {
             width: 340px;
             display: ${this.record === null ? 'none' : 'block'}
         }
-
         button {
             position: absolute;
             top: 12px;
@@ -187,15 +185,33 @@ class PlacePanel extends StyledComponent {
             border-radius: 0;
             color: #000;
             cursor: pointer;
+            background: #fff;
 
             &:hover {
                 background: #ddd;
             }
         }
-
+        h2 {
+            margin-top: 30px;
+            margin-bottom: 16px;
+        }
+        .datetime {
+            margin-top: 0;
+            color: #777;
+        }
+        .description {
+            margin: 24px 0;
+        }
         audio {
             width: 100%;
             margin-bottom: 12px;
+        }
+        .audioLink {
+            color: #999;
+            font-size: .8em;
+            a {
+                color: #777;
+            }
         }
         `;
     }
@@ -209,10 +225,10 @@ class PlacePanel extends StyledComponent {
         let content = null;
         if (this.record !== null) {
             content = jdom`<div>
-                <h2>${props.name}</h2>
                 <button onclick="${() => router.go('/')}">Close</button>
-                <p class="datetime">${props.date.toLocaleDateString()}</p>
-                <p>${props.description}</p>
+                <h2>${props.name}</h2>
+                <p class="datetime">Recorded ${props.date.toLocaleDateString()}</p>
+                <p class="description">${props.description}</p>
                 ${AudioWithControls(`/static/mp3/${props.id}.mp3`)}
             </div>`;
         }
@@ -373,7 +389,7 @@ class AboutTab extends StyledComponent {
             <p>
                 Though I love to take pictures and videos to remember where I've been,
                 I discovered that one of my favorite ways to remember where I've been is
-                to listen to the <strong>sounds of places</strong>.
+                to listen to the <strong>sounds from places</strong>.
             </p>
             <p class="signout">- Linus</p>
         </div>`;
@@ -482,7 +498,7 @@ class App extends StyledComponent {
                     <a href="/" onclick="${evt => {
                         evt.preventDefault();
                         router.go('/');
-                    }}">Sounds</a>
+                    }}">Sounds<span class="desktop"> from Places</span></a>
                 </div>
                 <nav>
                     <a href="/" onclick="${evt => {
