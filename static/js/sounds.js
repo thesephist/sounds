@@ -160,7 +160,7 @@ const SOUNDS_LIST = {
         lat: 40.749234,
         lng: -74.003847,
     },
-    'tours-les-jours-koreatown': {
+    'tours-les-jours-koreatown-nyc': {
         name: 'Tours Les Jours, Koreatown NYC',
         description: 'h1',
         date: new Date('2019-04-26'),

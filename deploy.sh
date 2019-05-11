@@ -1,3 +1,3 @@
-#!/usr/bin/sh
+#!/bin/sh
 
-surge -p dist --domain soundsfromplaces.surge.sh
+surge -p dist --domain https://soundsfromplaces.surge.sh

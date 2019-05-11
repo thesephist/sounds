@@ -28,7 +28,7 @@ for (const [slug, props] of Object.entries(SOUNDS_LIST)) {
 //  so we use `LeafletMap`, which is also more descriptive.
 class LeafletMap extends StyledComponent {
 
-    init() {
+    init(soundStore) {
         this.mapContainer = document.createElement('div');
         this.mapContainer.classList.add('map-div');
         this.leafletMap = new L.map(this.mapContainer, {
@@ -36,6 +36,8 @@ class LeafletMap extends StyledComponent {
             //  which overlaps with our panel.
             zoomControl: false,
         });
+
+        this.bind(soundStore, () => this.render());
 
         //> Create and add controls to the top right corner
         L.control.zoom({
@@ -64,7 +66,7 @@ class LeafletMap extends StyledComponent {
     }
 
     centerAll() {
-        const sounds = Array.from(soundStore.records);
+        const sounds = Array.from(this.record.records);
         const lats = sounds.map(s => s.get('lat'));
         const lngs = sounds.map(s => s.get('lng'));
 
@@ -118,8 +120,10 @@ class LeafletMap extends StyledComponent {
 }
 
 const AudioWithControls = audioSrc => {
-    // TODO: improve this with custom controls?
-    return jdom`<audio src="${audioSrc}" controls></audio>`;
+    return jdom`<div class="audioGroup">
+        <audio src="${audioSrc}" controls loop></audio>
+        <div>You can also listen <a href="${audioSrc}">here</a>.</div>
+    </div>`;
 }
 
 class PlacePanel extends StyledComponent {
@@ -189,6 +193,11 @@ class PlacePanel extends StyledComponent {
                 background: #ddd;
             }
         }
+
+        audio {
+            width: 100%;
+            margin-bottom: 12px;
+        }
         `;
     }
 
@@ -203,7 +212,7 @@ class PlacePanel extends StyledComponent {
             content = jdom`<div>
                 <h2>${props.name}</h2>
                 <button onclick="${() => router.go('/')}">Close</button>
-                <p class="datetime">${props.date.toLocaleString()}</p>
+                <p class="datetime">${props.date.toLocaleDateString()}</p>
                 <p>${props.description}</p>
                 ${AudioWithControls(`/static/mp3/${props.id}.mp3`)}
             </div>`;
@@ -222,10 +231,10 @@ class PlacePanel extends StyledComponent {
 //  location.
 class MapTab extends StyledComponent {
 
-    init() {
+    init(soundStore) {
         this.activeSound = null;
 
-        this.map = new LeafletMap();
+        this.map = new LeafletMap(soundStore);
         this.placePanel = new PlacePanel();
     }
 
@@ -259,6 +268,79 @@ class MapTab extends StyledComponent {
                 ${this.map.node}
             </div>
             ${this.placePanel.node}
+        </div>`;
+    }
+
+}
+
+const SoundListItem = sound => {
+    const props = sound.summarize();
+
+    return jdom`<li class="soundListItem" onclick="${evt => router.go(`/sounds/${sound.id}`)}">
+        <div class="soundName">${props.name}</div>
+        <div class="soundDate">${props.date.toLocaleDateString()}</div>
+        <div class="soundDescription">${props.description}</div>
+        <div class="soundLocation">
+            <span>${props.lat}</span>, <span>${props.lng}</span>
+        </div>
+    </li>`;
+}
+
+class SoundListTab extends StyledComponent {
+
+    init(soundStore) {
+        this.bind(soundStore, () => this.render());
+    }
+
+    styles() {
+        return css`
+        margin: 20px auto;
+        max-width: 800px;
+        width: 60%;
+
+        @media only screen and (max-width: 700px) {
+            width: 92% !important;
+        }
+
+        ul {
+            padding-left: 0;
+        }
+        li {
+            list-style: none;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 4px;
+            margin-bottom: 6px;
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+
+            &:hover {
+                background: #eee;
+            }
+        }
+        .soundName {
+            font-weight: bold;
+        }
+        .soundDate {
+            color: #999;
+        }
+        .soundLocation {
+            color: #999;
+            font-size: .8em;
+        }
+        .soundName,
+        .soundDate,
+        .soundDescription {
+            margin-bottom: 4px;
+        }
+        `;
+    }
+
+    compose(props) {
+        return jdom`<div class="soundsListContainer">
+            <ul class="soundList">
+                ${props.map(s => SoundListItem(s))}
+            </ul>
         </div>`;
     }
 
@@ -303,11 +385,12 @@ class AboutTab extends StyledComponent {
 class App extends StyledComponent {
 
     init(router) {
-        this.activeTab = 'map';
+        this.activeTab = 'list';
 
         this.tabs = {
-            map: new MapTab(),
+            map: new MapTab(soundStore),
             about: new AboutTab(),
+            list: new SoundListTab(soundStore),
         }
 
         this.bind(router, ([name, params]) => {
@@ -318,6 +401,9 @@ class App extends StyledComponent {
                     break;
                 case 'about':
                     this.activeTab = 'about';
+                    break;
+                case 'list':
+                    this.activeTab = 'list';
                     break;
                 default:
                     this.setActiveSound(null);
@@ -340,7 +426,16 @@ class App extends StyledComponent {
         height: 100vh;
         width: 100vw;
         font-family: system-ui, sans-serif;
+
         header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+            background: #fff;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, .3);
+
             display: flex;
             flex-direction: row;
             justify-content: space-between;
@@ -361,13 +456,14 @@ class App extends StyledComponent {
             }
         }
         .logo a {
-            font-size: 32px;
+            font-size: 24px;
             font-weight: bold;
         }
         .tabContainer {
             flex-shrink: 1;
             flex-grow: 1;
             height: 0;
+            margin-top: 50px;
         }
         nav {
             display: flex;
@@ -390,10 +486,14 @@ class App extends StyledComponent {
                     }}">Sounds</a>
                 </div>
                 <nav>
-                    <a href="https://linus.zone/now">
-                        <span class="desktop">Made by </span>
-                        <span class="mobile">@</span>thesephist
-                    </a>
+                    <a href="/" onclick="${evt => {
+                        evt.preventDefault();
+                        router.go('/');
+                    }}">Map</a>
+                    <a href="/list" onclick="${evt => {
+                        evt.preventDefault();
+                        router.go('/list');
+                    }}">List</a>
                     <a href="/about" onclick="${evt => {
                         evt.preventDefault();
                         router.go('/about');
@@ -411,6 +511,7 @@ class App extends StyledComponent {
 const router = new Router({
     sound: '/sounds/:slug',
     about: '/about',
+    list: '/list',
     default: '/',
 });
 const app = new App(router);
