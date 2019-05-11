@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "leaflet": "^1.5.1",
-    "torus-dom": "^0.4.3"
+    "torus-dom": "^0.4.4"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^5.0.3",

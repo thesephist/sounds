@@ -2734,10 +2734,10 @@ to-regex@^3.0.1, to-regex@^3.0.2:
     regex-not "^1.0.2"
     safe-regex "^1.1.0"
 
-torus-dom@^0.4.3:
-  version "0.4.3"
-  resolved "https://registry.yarnpkg.com/torus-dom/-/torus-dom-0.4.3.tgz#9ca19c0f6a12f96a01e28d23d19e3eea772dbe11"
-  integrity sha512-Z2j3OIMiAwvKJaiWmumVZWoUbC5dRlLogETBqjZUAeiw4UNpcl0B1nOUfDuoVv3a5VOV4jhY3W7Tfv0PaxRqkQ==
+torus-dom@^0.4.4:
+  version "0.4.4"
+  resolved "https://registry.yarnpkg.com/torus-dom/-/torus-dom-0.4.4.tgz#9f02e1513ba61ee37bfcd9c91f3fdbd59145c235"
+  integrity sha512-OphN8M6k2zV1XfVN6wkFsKrQ0hfD7Tvb/nWye/NOE4vj1/uU2a/1qXiiEZ0so2C/LjTCe1oHEzd2qJXVdhzZCA==
 
 tslib@^1.9.0:
   version "1.9.3"
