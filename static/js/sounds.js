@@ -15,7 +15,7 @@ const SOUNDS_LIST = {
     },
     'chestnut-st-sf': {
         name: 'Chestnut Street, San Francisco',
-        description: 'I visited this little alley of street shops in San Francisco first time because I was visiting the Apple Store. Since then, I\'ve enjoyed coming back here because of how clsoe it is to the sea, and the coffee shops and sights that line the sides of the street.',
+        description: 'I visited this little alley of street shops in San Francisco first time because I was visiting the Apple Store. Since then, I\'ve enjoyed coming back here because of how close it is to the sea, and the coffee shops and sights that line the sides of the street.',
         date: new Date('2018-11-21'),
         lat: 37.802097,
         lng: -122.426389,
