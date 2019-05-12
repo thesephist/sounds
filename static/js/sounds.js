@@ -132,7 +132,7 @@ const SOUNDS_LIST = {
         lat: 40.456991,
         lng: -79.917607,
     },
-    'stone-mountain': {
+    'stone-mountain-ga': {
         name: 'Stone Mountain, Georgia',
         description: 'I hear this is one of the largest contiguous pieces of granite in the country, or something like that.',
         date: new Date('2017-12-26'),
