@@ -82,12 +82,7 @@ class LeafletMap extends StyledComponent {
             [minLat, minLng],
             [maxLat, maxLng],
         ]);
-        if (!this._setInitialBounds || fly !== true) {
-            this.leafletMap.fitBounds(bounds);
-            this._setInitialBounds = true;
-        } else {
-            this.leafletMap.flyToBounds(bounds, this.flyOptions());
-        }
+        this.goToBounds(bounds, fly);
     }
 
     centerSound(sound, fly) {
@@ -95,10 +90,15 @@ class LeafletMap extends StyledComponent {
             lat: sound.get('lat'),
             lng: sound.get('lng'),
         }]);
-        if (fly) {
-            this.leafletMap.flyToBounds(bounds, this.flyOptions());
-        } else {
+        this.goToBounds(bounds, fly);
+    }
+
+    goToBounds(bounds, fly) {
+        if (!this._setInitialBounds || fly !== true) {
             this.leafletMap.fitBounds(bounds);
+            this._setInitialBounds = true;
+        } else {
+            this.leafletMap.flyToBounds(bounds, this.flyOptions());
         }
     }
 
