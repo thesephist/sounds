@@ -92,7 +92,7 @@ class LeafletMap extends StyledComponent {
         if (fly) {
             this.leafletMap.flyToBounds(bounds, this.flyOptions());
         } else {
-            this.leafletMap.fitBounds(bounds, this.flyOptions());
+            this.leafletMap.fitBounds(bounds);
         }
     }
 
@@ -139,23 +139,24 @@ class PlacePanel extends StyledComponent {
         } else {
             this.bind(sound, () => this.render());
         }
+        this.active = false;
         this.render();
     }
 
     styles() {
         let position;
         if (this.record === null) {
-            position = '0';
+            position = '102%';
         } else if (this.active) {
-            position = 'calc(-100% - 8px)';
-        }  else {
-            position = '-20vh';
+            position = '-8px';
+        } else {
+            position = 'calc(100% - 150px)';
         }
 
         return css`
         position: absolute;
-        top: 100%;
         left: 50%;
+        bottom: 0;
         background: #fff;
         border-radius: 6px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, .4);
