@@ -154,7 +154,7 @@ class PlacePanel extends StyledComponent {
         if (this.record === null) {
             position = '102%';
         } else if (this.active) {
-            position = '-8px';
+            position = '-16px';
         } else {
             position = 'calc(100% - 150px)';
         }
@@ -222,6 +222,17 @@ class PlacePanel extends StyledComponent {
                 color: #777;
             }
         }
+        .tapHint {
+            color: #777;
+            position: absolute;
+            top: 12px;
+            left: 0;
+            right: 0;
+            width: 100%;
+            font-style: italic;
+            text-align: center;
+            transition: opacity .3s;
+        }
         `;
     }
 
@@ -235,6 +246,7 @@ class PlacePanel extends StyledComponent {
         let content = null;
         if (this.record !== null) {
             content = jdom`<div>
+                <div class="tapHint mobile" style="opacity:${this.active ? 0 : 1}">Tap to see more</div>
                 <button onclick="${() => router.go('/')}">Close</button>
                 <h2>${props.name}</h2>
                 <p class="datetime">Recorded ${props.date.toLocaleDateString()}</p>
