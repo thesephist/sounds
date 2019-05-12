@@ -225,7 +225,8 @@ class PlacePanel extends StyledComponent {
         `;
     }
 
-    toggleActive() {
+    toggleActive(evt) {
+        evt.preventDefault();
         this.active = !this.active;
         this.render();
     }
@@ -288,6 +289,7 @@ class MapTab extends StyledComponent {
         height: 100%;
         width: 100%;
         position: relative;
+        overflow: hidden;
         .map-container {
             height: 100%;
             width: 100%;
