@@ -11,7 +11,13 @@ import {
 import {SOUNDS_LIST} from './sounds.js';
 
 class Sound extends Record { }
-class SoundStore extends StoreOf(Sound) { }
+class SoundStore extends StoreOf(Sound) {
+
+    get comparator() {
+        return sound => -sound.get('date').getTime();
+    }
+
+}
 
 //> Not sure if it's a great idea to have this as a global yet, but it might be ok
 //  since this whole app is quite small.
@@ -172,6 +178,7 @@ class PlacePanel extends StyledComponent {
             transform: none;
             top: 8px;
             left: 8px;
+            bottom: unset;
             width: 340px;
             display: ${this.record === null ? 'none' : 'block'}
         }
@@ -184,12 +191,12 @@ class PlacePanel extends StyledComponent {
             border: 0;
             box-shadow: 0;
             border-radius: 0;
-            color: #000;
+            color: #777;
             cursor: pointer;
             background: #fff;
 
             &:hover {
-                background: #ddd;
+                background: #dfdfdf;
             }
         }
         h2 {
@@ -202,6 +209,7 @@ class PlacePanel extends StyledComponent {
         }
         .description {
             margin: 24px 0;
+            line-height: 1.4em;
         }
         audio {
             width: 100%;
@@ -356,7 +364,13 @@ class SoundListTab extends StyledComponent {
         .soundName,
         .soundDate,
         .soundDescription {
-            margin-bottom: 4px;
+            margin-bottom: 6px;
+        }
+        .soundDescription {
+            line-height: 1.4em;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
         }
         `;
     }
@@ -401,7 +415,11 @@ class AboutTab extends StyledComponent {
                 I discovered that one of my favorite ways to remember where I've been is
                 to listen to the <strong>sounds from places</strong>.
             </p>
-            <p class="signout">- Linus</p>
+            <p>
+                If you want to see other stuff I've made, I'm at <a href="https://linus.zone/now">linus.zone/now</a>
+                and <a href="https://twitter.com/thesephist">@thesephist</a> elsewhere on the web.
+            </p>
+            <p class="signout">- Linus 🚀</p>
         </div>`;
     }
 
