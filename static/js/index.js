@@ -1,14 +1,12 @@
+import * as L from 'leaflet';
+
 import {
-    Component,
-    Styled,
-    StyledComponent,
     Record,
-    StoreOf,
     Router,
+    StoreOf,
+    StyledComponent,
     jdom,
 } from 'torus-dom';
-
-import * as L from 'leaflet';
 
 import {SOUNDS_LIST} from './sounds.js';
 
@@ -43,7 +41,7 @@ class LeafletMap extends StyledComponent {
         }).addTo(this.leafletMap);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         }).addTo(this.leafletMap);
 
         for (const sound of soundStore) {
@@ -52,18 +50,19 @@ class LeafletMap extends StyledComponent {
                 router.go(`/sounds/${sound.id}`);
             });
         }
-
-        //> This is a bad, temporary measure to invalidate the size of the rendered map on the page
-        //  after Torus renders it. We'll have a better solution later.
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                this.leafletMap.invalidateSize();
-                this.centerAll();
-            });
-        });
     }
 
-    centerAll() {
+    resize() {
+        this.leafletMap.invalidateSize();
+    }
+
+    flyOptions() {
+        return {
+            duration: 1.8,
+        }
+    }
+
+    centerAll(fly) {
         const sounds = Array.from(this.record.records);
         const lats = sounds.map(s => s.get('lat'));
         const lngs = sounds.map(s => s.get('lng'));
@@ -77,23 +76,24 @@ class LeafletMap extends StyledComponent {
             [minLat, minLng],
             [maxLat, maxLng],
         ]);
-        if (!this._setInitialBounds) {
+        if (!this._setInitialBounds || fly !== true) {
             this.leafletMap.fitBounds(bounds);
             this._setInitialBounds = true;
         } else {
-            this.leafletMap.flyToBounds(bounds, {
-                duration: 1.8,
-            });
+            this.leafletMap.flyToBounds(bounds, this.flyOptions());
         }
     }
 
-    centerSound(sound) {
-        this.leafletMap.flyToBounds(L.latLngBounds([{
+    centerSound(sound, fly) {
+        const bounds = L.latLngBounds([{
             lat: sound.get('lat'),
             lng: sound.get('lng'),
-        }]), {
-            duration: 1.8,
-        });
+        }]);
+        if (fly) {
+            this.leafletMap.flyToBounds(bounds, this.flyOptions());
+        } else {
+            this.leafletMap.fitBounds(bounds, this.flyOptions());
+        }
     }
 
     styles() {
@@ -253,16 +253,25 @@ class MapTab extends StyledComponent {
         this.placePanel = new PlacePanel();
     }
 
-    setActiveSound(slug) {
+    setActiveSound(slug, fly) {
         if (slug !== null) {
             this.activeSound = soundStore.find(slug);
-            this.map.centerSound(this.activeSound);
         } else {
             this.activeSound = null;
-            this.map.centerAll();
         }
         this.placePanel.bindSound(this.activeSound);
         this.render();
+
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                this.map.resize();
+                if (slug !== null) {
+                    this.map.centerSound(this.activeSound, fly);
+                } else {
+                    this.map.centerAll(fly);
+                }
+            });
+        });
     }
 
     styles() {
@@ -291,7 +300,7 @@ class MapTab extends StyledComponent {
 const SoundListItem = sound => {
     const props = sound.summarize();
 
-    return jdom`<li class="soundListItem" onclick="${evt => router.go(`/sounds/${sound.id}`)}">
+    return jdom`<li class="soundListItem" onclick="${() => router.go(`/sounds/${sound.id}`)}">
         <div class="soundName">${props.name}</div>
         <div class="soundDate">${props.date.toLocaleDateString()}</div>
         <div class="soundDescription">${props.description}</div>
@@ -400,7 +409,7 @@ class AboutTab extends StyledComponent {
 class App extends StyledComponent {
 
     init(router) {
-        this.activeTab = 'list';
+        this.activeTab = 'map';
 
         this.tabs = {
             map: new MapTab(soundStore),
@@ -411,7 +420,7 @@ class App extends StyledComponent {
         this.bind(router, ([name, params]) => {
             switch (name) {
                 case 'sound':
-                    this.setActiveSound(params.slug);
+                    this.setActiveSound(params.slug, {fly: this.activeTab === 'map'});
                     this.activeTab = 'map';
                     break;
                 case 'about':
@@ -421,7 +430,7 @@ class App extends StyledComponent {
                     this.activeTab = 'list';
                     break;
                 default:
-                    this.setActiveSound(null);
+                    this.setActiveSound(null, {fly: this.activeTab === 'map'});
                     this.activeTab = 'map';
                     break;
             }
@@ -429,8 +438,8 @@ class App extends StyledComponent {
         });
     }
 
-    setActiveSound(slug) {
-        this.tabs.map.setActiveSound(slug);
+    setActiveSound(slug, {fly}) {
+        this.tabs.map.setActiveSound(slug, fly);
     }
 
     styles() {
