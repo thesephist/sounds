@@ -349,4 +349,32 @@ export const SOUNDS_LIST = {
         lat: 51.529987,
         lng: -0.127326,
     },
+    'mogilsa-restaurant': {
+        name: 'Restaurant in Mógilsá',
+        description: 'I stopped along the side of the road at a parking lot to a lone restaurant poking through the Icelandic snowscape on my drive to Snaeffells. Iceland is a strange combination of serene and lonely, and I wanted to remember what it felt like to be there in that strangeness.',
+        date: new Date('2020-03-15'),
+        lat: 64.208781,
+        lng: -21.712681,
+    },
+    'hotel-duus': {
+        name: 'Dock next to Hotel Duus',
+        description: 'I stayed at Hotel Duus in Iceland for a day-long layover, and when I woke up that morning, I took a walk out into the small dock nearby.',
+        date: new Date('2020-03-16'),
+        lat: 64.008507,
+        lng: -22.557831,
+    },
+    'gardur-lighthouse': {
+        name: 'Garður Old Lighthouse',
+        description: 'This lighthouse is at the northernmost tip of the peninsula at the west edge of Iceland, near the Keflavik Airport, where Iceland extends out into the cold, almost Arctic North Atlantic. I spent some time just staring out into the unforgiving waves of the sea swallowing up coastlines in the distance.',
+        date: new Date('2020-03-16'),
+        lat: 64.082980,
+        lng: -22.693555,
+    },
+    'amberleigh': {
+        name: 'Amberleigh Village Pond',
+        description: 'Ever since I was in high school, I used to walk and bike to this pond close to my neighborhood to get out for walks. It\'s not anything special, but it has a special place in my memory, even as the city around it is constantly growing and urbanizing.',
+        date: new Date('2020-04-02'),
+        lat: 40.465275,
+        lng: -86.919799,
+    },
 };
