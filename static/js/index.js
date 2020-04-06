@@ -8,7 +8,9 @@ import {
     jdom,
 } from 'torus-dom';
 
-import {SOUNDS_LIST} from './sounds.js';
+import {
+    SOUNDS_LIST,
+} from './sounds.js';
 
 class Sound extends Record { }
 class SoundStore extends StoreOf(Sound) {
@@ -123,13 +125,11 @@ class LeafletMap extends StyledComponent {
 
 }
 
-const AudioWithControls = audioSrc => {
-    return jdom`<div class="audioGroup">
-        <audio src="${audioSrc}" controls loop>
-            <div class="audioLink">Listen to the sound <a href="${audioSrc}">here</a>.</div>
-        </audio>
-    </div>`;
-}
+const AudioWithControls = audioSrc => jdom`<div class="audioGroup">
+    <audio src="${audioSrc}" controls loop>
+        <div class="audioLink">Listen to the sound <a href="${audioSrc}">here</a>.</div>
+    </audio>
+</div>`;
 
 class PlacePanel extends StyledComponent {
 
@@ -284,6 +284,8 @@ class MapTab extends StyledComponent {
         this.placePanel.bindSound(this.activeSound);
         this.render();
 
+        //> Double-rAF trick to guarantee render not on the current frame,
+        //  but the next (animation) frame
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
                 this.map.resize();
@@ -430,7 +432,7 @@ class AboutTab extends StyledComponent {
                 to listen to the <strong>sounds from places</strong>.
             </p>
             <p>
-                If you want to see other stuff I've made, I'm at <a href="https://linus.zone/now">linus.zone/now</a>
+                If you want to see other stuff I've made, I'm at <a href="https://thesephist.com/projects">thesephist.com/projects</a>
                 and <a href="https://twitter.com/thesephist">@thesephist</a> elsewhere on the web.
             </p>
             <p class="signout">- Linus 🚀</p>
