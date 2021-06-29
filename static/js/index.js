@@ -343,7 +343,8 @@ class SoundListTab extends StyledComponent {
 
     styles() {
         return css`
-        margin: 20px auto;
+        margin: 0 auto;
+        padding: 20px 0;
         max-width: 800px;
         width: 60%;
 
@@ -384,9 +385,6 @@ class SoundListTab extends StyledComponent {
         }
         .soundDescription {
             line-height: 1.4em;
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
         }
         `;
     }
@@ -410,6 +408,10 @@ class AboutTab extends StyledComponent {
         width: 60%;
         line-height: 1.5em;
 
+        a {
+            color: inherit;
+        }
+
         .signout {
             text-align: right;
         }
@@ -423,17 +425,29 @@ class AboutTab extends StyledComponent {
     compose() {
         return jdom`<div class="aboutTab">
             <p>
-                Since 2017 I've been fortunate enough to travel to a bunch of new and
-                interesting places across the United States and the world.
+                Since 2016 when I got my first job in high school, I've been
+                fortunate enough to travel to a bunch of new and interesting
+                places across the US and the world.
             </p>
             <p>
-                Though I love to take pictures and videos to remember where I've been,
-                I discovered that one of my favorite ways to remember where I've been is
-                to listen to the <strong>sounds from places</strong>.
+                Though I love to take pictures and videos to remember where
+                I've been, I discovered that one of my favorite ways to
+                remember where I've been is to listen to the <strong>sounds
+                from places</strong>. So I started recording 1-minute sound
+                clips (with a few exceptions) from the places I've visited that
+                I'd like to remember. To make it more fun and easier to
+                browse, I've placed them on a map here on this website.
             </p>
             <p>
-                If you want to see other stuff I've made, I'm at <a href="https://thesephist.com/projects">thesephist.com/projects</a>
-                and <a href="https://twitter.com/thesephist">@thesephist</a> elsewhere on the web.
+                Like most of my side projects, this site is built with <a
+                href="https://github.com/thesephist/torus"
+                target="_blank">Torus</a> as the UI framework.
+            </p>
+            <p>
+                If you want to see other stuff I've made, I'm at <a
+                href="https://thesephist.com/">thesephist.com/</a>
+                and <a href="https://twitter.com/thesephist">@thesephist</a>
+                elsewhere on the web.
             </p>
             <p class="signout">- Linus 🚀</p>
         </div>`;
